@@ -7,7 +7,7 @@ const XLSX = require('xlsx');
 
 const sitemapUrl = 'https://ak.sv/sitemap.xml';
 const checkpointFile = 'checkpoint.json';
-const BATCH_SIZE = 1000; // عدد النتائج قبل الحفظ والتوقف
+const BATCH_SIZE = 10; // عدد النتائج قبل الحفظ والتوقف
 
 // --- استخراج روابط الأفلام من Sitemap ---
 async function extractMovieUrlsFromSitemap(url) {
@@ -72,7 +72,7 @@ async function processMovieLinks(urls) {
     console.log(`🔍 معالجة: ${url}`);
 
     try {
-      await page.goto(url, { waitUntil: 'networkidle2', timeout: 6000 });
+      await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
       const html = await page.content();
 
       const imdbMatch = html.match(/tt\d{7,}/);
@@ -87,7 +87,7 @@ async function processMovieLinks(urls) {
 
         // --- فتح finalUrl لاستخراج رابط الفيديو الأساسي ---
         try {
-          await page.goto(finalUrl, { waitUntil: 'networkidle2', timeout: 60000 });
+          await page.goto(finalUrl, { waitUntil: 'networkidle2', timeout: 0 });
 
           const videoLink = await page.evaluate(() => {
             // أولاً حاول استخراج أي رابط من <video source>
