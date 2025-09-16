@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JWPlayer Advanced Video+Audio</title>
+<script src="https://ssl.p.jwpcdn.com/player/v/8.17.7/jwplayer.js"></script>
+<script>jwplayer.key = "oXqNrzSZ9lQbo5mgdmfM+TwMP/GR4bAiKFXy8nlANTs=";</script>
+<style>
+html, body { margin:0; padding:0; height:100%; background:black; }
+#player { width:100%; height:100%; }
+</style>
+</head>
+<body>
+<div id="player"></div>
+
+<script>
+async function initPlayer() {
+    const url = new URLSearchParams(window.location.search).get('url');
+    if (!url) { alert('لم يتم تحديد رابط الفيديو'); return; }
+
+    try {
+        const res = await fetch('scrape.php?url=' + encodeURIComponent(url));
+        const data = await res.json();
+
+        if (data.error) { alert('خطأ: ' + data.error); return; }
+        if (!data.items || data.items.length === 0) { alert('لا توجد فيديوهات صالحة'); return; }
+
+        // جلب الفيديوهات فقط مع دمج الصوت داخليًا (Video+Audio)
+        const sources = data.items
+            .filter(item => item.quality_label.includes('Video+Audio'))
+            .map(item => ({
+                file: item.url,
+                type: item.ext === 'm3u8' ? 'hls' : 'mp4',
+                label: item.quality_label.replace(' (Video+Audio)','')
+            }));
+
+        // فرز الجودات من الأعلى إلى الأقل
+        sources.sort((a, b) => parseInt(b.label) - parseInt(a.label));
+
+        jwplayer("player").setup({
+            image: data.thumbnail,
+            width: "100%",
+            height: "100%",
+            autostart: true,
+            preload: "auto",
+            controls: true,
+            stretching: "uniform",
+            playbackRateControls: true,
+            sources: sources,
+            displaytitle: true,
+            events: {
+                onQuality: function(e) {
+                    // عند تغيير الجودة، المشغل يختار المصدر الصحيح مع دمج الصوت
+                    jwplayer().load([sources[e.currentQuality]]);
+                }
+            }
+        });
+
+    } catch (e) {
+        alert('فشل تحميل الفيديو: ' + e.message);
+    }
+}
+
+window.addEventListener('DOMContentLoaded', initPlayer);
+</script>
+</body>
+</html>
