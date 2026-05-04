@@ -1,0 +1,14 @@
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.iml
+.idea/
+.vscode/.flutter-plugins
+ios/Pods/
+ios/Podfile.lock
+android/.gradle/
+android/local.properties

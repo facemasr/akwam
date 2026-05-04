@@ -1,0 +1,12 @@
+تشغيل:
+flutter pub get
+flutter run
+
+Android APK:
+flutter build apk --release
+
+Android AAB:
+flutter build appbundle --release
+
+iOS على Mac:
+flutter build ios --release
